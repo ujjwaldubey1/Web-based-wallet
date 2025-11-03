@@ -1,22 +1,32 @@
 import React, { useState } from 'react';
 import { ethers } from 'ethers';
 // No 'bip39' or 'buffer' needed
+import WalletBalance from "./Api/FetchRpc.jsx";
+
+
+type WalletType = {
+  publicKey: string;
+  privateKey: string;
+  mnemonic: string;
+  address: string;
+};
 
 const App = () => {
-  const [wallets, setWallets] = useState([]);
+  const [wallets, setWallets] = useState<WalletType[]>([]);
 
   // (Fixed typo: handlehandleGenrateWallet -> handleGenerateWallet)
   const handleGenerateWallet = () => {
     const newWallet = ethers.Wallet.createRandom();
 
-    const newWalletData = {
+    const newWalletData: WalletType = {
       // (Fixed typo: publiKey -> publicKey)
       publicKey: newWallet.publicKey,
       privateKey: newWallet.privateKey,
-      // (Fixed typo: mnemonics -> mnemonic)
-      mnemonic: newWallet.mnemonic.phrase,
+      // safely handle possibly-null mnemonic
+      mnemonic: newWallet.mnemonic?.phrase ?? '',
+      address: newWallet.address,
     };
-    setWallets([...wallets, newWalletData]);
+    setWallets(prev => [...prev, newWalletData]);
   };
 
   return (
@@ -49,7 +59,8 @@ const App = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           
           {/* 5. Map and create a "card" for each wallet */}
-          {wallets.map((wallet, index) => (
+          {wallets.map((wallet, index) => {
+            return (
             <div
               key={index}
               className="
@@ -95,9 +106,13 @@ const App = () => {
                     {wallet.mnemonic}
                   </p>
                 </div>
+                <div>
+                  <WalletBalance walletBalance = {wallet.address}></WalletBalance>
+                </div>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* 6. A small helper note if no wallets exist yet */}
