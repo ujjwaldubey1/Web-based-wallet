@@ -1,4 +1,5 @@
 // ./Api/FetchRpc.jsx
+import React from "react"
 import { useQuery } from "@tanstack/react-query"
 import axios from "axios"
 import { ethers } from "ethers" // Import ethers for formatting
@@ -35,7 +36,9 @@ const fetchEthereumBalance = async (address) => {
 }
 
 // 3. Use it in your component
-function WalletBalance({ walletAddress }) {
+function WalletBalance({ walletAddress, walletBalance }) {
+	// Accept either prop name for compatibility with App.tsx
+	const address = walletAddress ?? walletBalance
 	const {
 		data: balance,
 		isLoading,
@@ -43,12 +46,12 @@ function WalletBalance({ walletAddress }) {
 		error,
 	} = useQuery({
 		// Query key is now for 'ethBalance'
-		queryKey: ["ethBalance", walletAddress],
-		queryFn: () => fetchEthereumBalance(walletAddress),
-		enabled: !!walletAddress,
+		queryKey: ["ethBalance", address],
+		queryFn: () => fetchEthereumBalance(address),
+		enabled: !!address,
 	})
 
-	if (!walletAddress) {
+	if (!address) {
 		return <div></div> // Don't show anything if no address
 	}
 	if (isLoading) {
